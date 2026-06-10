@@ -3,6 +3,7 @@ package br.com.joselv.desafioqa.pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -33,6 +34,16 @@ public abstract class BasePage {
 
     protected void aguardarInvisibilidade(By localizador) {
         wait.until(ExpectedConditions.invisibilityOfElementLocated(localizador));
+    }
+
+    protected boolean desapareceuEm(By localizador, int segundos) {
+        try {
+            new WebDriverWait(driver, Duration.ofSeconds(segundos))
+                    .until(ExpectedConditions.invisibilityOfElementLocated(localizador));
+            return true;
+        } catch (TimeoutException e) {
+            return false;
+        }
     }
 
     protected void clicar(By localizador) {

@@ -1,0 +1,52 @@
+name: Testes Automatizados
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  testes-api:
+    name: Testes de API (Parte 1)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Executar suíte de API
+        run: mvn -B test -Dcucumber.filter.tags="@api"
+
+  testes-web:
+    name: Testes Web (Parte 2)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Executar suíte web em modo headless
+        run: mvn -B test -Dcucumber.filter.tags="@web" -Dheadless=true
+
+      - name: Publicar relatório e screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-testes-web
+          path: |
+            target/cucumber-report
+            target/screenshots
+          if-no-files-found: ignore
